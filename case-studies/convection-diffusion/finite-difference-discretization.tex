@@ -1,0 +1,56 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, xcolor}
+
+\newcommand\todo[1]{\textcolor{red}{#1}}
+
+\begin{document}
+
+\section*{Finite Difference Discretization of the 2D Convection-Diffusion Equation (Case Study 1)}
+
+In this case study, we consider the 2D convection-diffusion equation defined on the unit square with zero Dirichlet boundary conditions, as in the assigned paper.
+\begin{align*}
+u_t = -\Delta u + b_1 u_x + b_2 u_y,&~~~~x \in (0,1),~y \in (0,1),~t > 0\\
+u(0,y,t) = u(1,y,t) = 0,&~~~~y \in (0,1),~t > 0\\
+u(x,0,t) = u(x,1,t) = 0,&~~~~x \in (0,1),~t > 0\\
+u(x,y,0) = 0,&~~~~x \in (0,1),~y \in (0,1),
+\end{align*}
+where $u = u(x,y,t)$ and $b_1, b_2$ are the convection coefficients. Note if $b_1 = b_2 = 0$, the equation reduces to the Poisson equation.
+
+\todo{TODO: Rewrite/expand this just a little bit.}
+As its name implies, the convection-diffusion equation models both convection and diffusion processes and is a combination of those two equations. One example is the placement of a dye or checmial into flowing water. As the fluid flows (convection), the dye will mix with the water (diffusion). In these types of examples, the convection coefficients are taken to the $x$- and $y$- components of the velocity field of the fluid.
+
+\subsection*{Finite Difference Discretization}
+Consider a five-point finite difference discretization of the convection-diffusion equation. It has been shown that relying purely on such scheme results in undesired oscillatory behavior in the approximated solution \cite{}. One remedy to this problem is to approximate only the Laplacian term (diffusion term) with a five-point scheme and instead use upwinding for the remaining terms (convection terms). We follow this approach in this case study, using a first-order upwinding scheme for the convection term.
+
+Because we are working in two dimensions, we need to discretize in both spatial dimensions and the temporal dimension. We thus construct an $M \times M$ 2D mesh grid from the unit square domain with equal sizing $h = 1/M$ in both spatial dimensions. See Figure 1 below.
+
+% Figure
+
+Thus, the $x$-component of the domain is partitioned into $M$ points along the mesh that we denote by $x_j = jh$ for $j = 1, 2, \ldots, M-1$. Similarly, the $y$-component is partitioned as $y_k = kh$ for $k = 1, 2, \ldots, M-1$. To prescribe the boundary conditions, we take $x_0 = x_M = 0$ and $y_0 = y_M = 0$. For the temporal discretization, we partition time into $N$ time steps with $t_n = nm$ for $n = 1, 2, \ldots, N$ with $m = 1/N$.
+
+Let $U^{n}_{j,k}$ be the approximation of $u(x_j,y_k,t_n)$. With this discretization, we can write the five-point finite difference of the diffusion term as follows, with $j,k = 1, 2, \ldots, M-1$ and $n = 1, 2, \ldots, N$.
+\[
+\Delta u = \frac{1}{h^2}\left( U^{n}_{j+1,k} + U^{n}_{j-1,k} + U^{n}_{j,k+1} + U^{n}_{j,k-1} - 4U^{n}_{j,k}\right) + O(h^2)
+\]
+Note that this stencil uses the four neighbors of the current mesh point, as well as the point itself.
+
+For the advection terms, we use the first-order upwinding scheme as follows.
+\begin{align*}
+b_1u_x &= \frac{b_1}{h}\left(U^{n}_{j,k} - U^{n}_{j-1,k}\right) + O(h) \\
+b_2u_y &= \frac{b_2}{h}\left(U^{n}_{j,k} - U^{n}_{j,k-1}\right) + O(h)
+\end{align*}
+Thus, we have the following discretization of the 2D convection-diffusion equation for $j,k = 1, 2, \ldots, M-1$ and $n = 1, 2, \ldots, N$. It is first-order accurate.
+\begin{align*}
+\frac{U^{n+1}_{j,k} - U^{n}_{j,k}}{m} &= -\frac{1}{h^2}\left( U^{n}_{j+1,k} + U^{n}_{j-1,k}  U^{n}_{j,k+1} + U^{n}_{j,k-1} - 4U^{n}_{j,k}\right) + \\
+&~~~~~~~~~~~~~~~+\frac{b_1}{h}\left(U^{n}_{j,k} - U^{n}_{j-1,k}\right) + \frac{b_2}{h}\left(U^{n}_{j,k} - U^{n}_{j,k-1}\right) + O(h)
+\end{align*}
+\todo{TODO: double check if above is really first-order, or is it second order?} Solving for $U^{n+1}_{j,k}$, we obtain the following.
+\begin{align*}
+U^{n+1}_{j,k} &= -\frac{m}{h^2}\left( U^{n}_{j+1,k} + U^{n}_{j-1,k}  U^{n}_{j,k+1} + U^{n}_{j,k-1} - 4U^{n}_{j,k}\right) + \\
+&~~~~~~~~~~~~~~~+b_1\frac{m}{h}\left(U^{n}_{j,k} - U^{n}_{j-1,k}\right) + b_2\frac{m}{h}\left(U^{n}_{j,k} - U^{n}_{j,k-1}\right) + U^{n}_{j,k}
+\end{align*}
+Thus, the approximation at the next time step for a particular mesh point is computed from the spatial approximations of the current time step.
+
+\todo{TODO: stability analysis}
+\end{document}
