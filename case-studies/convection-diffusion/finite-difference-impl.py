@@ -6,8 +6,8 @@ b1 = 10
 b2 = 20
 
 # Discretization parameters
-M = 4  # M x M mesh size
-N = 10  # number of time steps
+M = 64  # M x M mesh size
+N = 10 # number of time steps
 h = 1/M  # spatial mesh step size
 m = 1/N  # temporal step size
 
@@ -40,7 +40,7 @@ tri_vec[1] = 1
 lower = scipy.linalg.toeplitz(tri_vec, np.zeros(M-1))
 upper = scipy.linalg.toeplitz(np.zeros(M-1), tri_vec)
 
-A = np.kron(lower, I_delta) + np.kron(upper, I_beta) + np.kron(np.identity(M-1), B)
+A = np.kron(lower, I_beta) + np.kron(upper, I_delta) + np.kron(np.identity(M-1), B)
 
 # At this point, we would precondition A, and then use GMRES
 # For now, using standard solver for illustration
